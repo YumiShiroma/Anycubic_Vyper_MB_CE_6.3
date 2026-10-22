@@ -1606,8 +1606,23 @@
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-// CE-6.3 test: keep the nozzle away from the spring-steel plate edge.
-#define PROBING_MARGIN 15
+//
+// CE-6.3 test "probe above the inserts":
+// On this machine the four bed mount inserts (M4 screw centers) sit 35 mm
+// from the left and right edges of the 250 x 255 bed, and 50 / 51 mm from
+// the front / back edges. The bed plate is unsupported (cantilevered) outside
+// that rectangle, so probing near the sheet edge pushes the overhang down and
+// drags the readings below the real surface.
+// Probing exactly above the inserts keeps the strain gauge on the rigid part.
+// X grid becomes 35 / 95 / 155 / 215, Y grid 50 / 101.3 / 152.7 / 204.
+// NOTE: the 35 mm (X) and 50 mm (Y) overhangs are no longer measured, so the
+// firmware can only extrapolate them. Expect the outer edge first layer to
+// run with less squish. If the edges go bare, revert to PROBING_MARGIN 15.
+#define PROBING_MARGIN 35
+#define PROBING_MARGIN_LEFT  35
+#define PROBING_MARGIN_RIGHT 35
+#define PROBING_MARGIN_FRONT 50
+#define PROBING_MARGIN_BACK  51
 
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_FEEDRATE (80*60)
