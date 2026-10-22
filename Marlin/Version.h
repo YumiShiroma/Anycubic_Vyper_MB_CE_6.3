@@ -25,23 +25,90 @@
 // VENDOR VERSION EXAMPLE //
 ////////////////////////////
 
+#include "Configuration.h"
+
 /**
  * Marlin release version identifier
  */
-//#define SHORT_BUILD_VERSION "2.1.2.9"
+
+#ifdef VYPER_NOZZLE_HOMING
+    #ifdef VYPER_BUILD_CJ
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(CJ+N)"
+    #elif defined VYPER_BUILD_CJ_IS
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(CJ+IS+N)"
+    #elif defined VYPER_BUILD_LA_JD
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+JD+N)"
+    #elif defined VYPER_BUILD_LA_CJ
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+CJ+N)"
+    #elif defined VYPER_BUILD_LA_JD_IS
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+JD+IS+N)"
+    #elif defined VYPER_BUILD_LA_CJ_IS
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+CJ+IS+N)"
+    #elif defined VYPER_BUILD_LA_JD_T
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+JD+T+N)"
+    #elif defined VYPER_BUILD_LA_CJ_T
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+CJ+T+N)"
+    #elif defined VYPER_BUILD_LA_JD_IS_T
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+JD+IS+T+N)"
+    #elif defined VYPER_BUILD_LA_CJ_IS_T
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+CJ+IS+T+N)"
+    #elif defined VYPER_BUILD_LA_JD_TE
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+JD+TE+N)"
+    #elif defined VYPER_BUILD_LA_CJ_TE
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+CJ+TE+N)"
+    #elif defined VYPER_BUILD_LA_JD_IS_TE
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+JD+IS+TE+N)"
+    #elif defined VYPER_BUILD_LA_CJ_IS_TE
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+CJ+IS+TE+N)"
+    #else
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0"
+    #endif
+#else
+    #ifdef VYPER_BUILD_CJ
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(CJ)"
+    #elif defined VYPER_BUILD_CJ_IS
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(CJ+IS)"
+    #elif defined VYPER_BUILD_LA_JD
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+JD)"
+    #elif defined VYPER_BUILD_LA_CJ
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+CJ)"
+    #elif defined VYPER_BUILD_LA_JD_IS
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+JD+IS)"
+    #elif defined VYPER_BUILD_LA_CJ_IS
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+CJ+IS)"
+    #elif defined VYPER_BUILD_LA_JD_T
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+JD+T)"
+    #elif defined VYPER_BUILD_LA_CJ_T
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+CJ+T)"
+    #elif defined VYPER_BUILD_LA_JD_IS_T
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+JD+IS+T)"
+    #elif defined VYPER_BUILD_LA_CJ_IS_T
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+CJ+IS+T)"
+    #elif defined VYPER_BUILD_LA_JD_TE
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+JD+TE)"
+    #elif defined VYPER_BUILD_LA_CJ_TE
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+CJ+TE)"
+    #elif defined VYPER_BUILD_LA_JD_IS_TE
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+JD+IS+TE)"
+    #elif defined VYPER_BUILD_LA_CJ_IS_TE
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0(LA+CJ+IS+TE)"
+    #else
+        #define SHORT_BUILD_VERSION "Vyper-CE-6.3.0"
+    #endif
+#endif
 
 /**
  * Verbose version identifier which should contain a reference to the location
  * from where the binary was downloaded or the source code was compiled.
  */
-//#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION
+#define DETAILED_BUILD_VERSION "Vyper Community Firmware - Release 6.3.0 (Marlin 2.1.2.9)"
 
 /**
  * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-//#define STRING_DISTRIBUTION_DATE "2026-08-12"
+#define STRING_DISTRIBUTION_DATE "2026-10-22"
 
 /**
  * The protocol for communication to the host. Protocol indicates communication
@@ -61,7 +128,7 @@
  * has a distinct Github fork— the Source Code URL should just be the main
  * Marlin repository.
  */
-//#define SOURCE_CODE_URL "github.com/MarlinFirmware/Marlin"
+#define SOURCE_CODE_URL "github.com/rommulaner"
 
 /**
  * Default generic printer UUID.
@@ -70,9 +137,9 @@
 
 /**
  * The WEBSITE_URL is the location where users can get more information such as
- * documentation about a specific Marlin release.
+ * documentation about a new Marlin release.
  */
-//#define WEBSITE_URL "marlinfw.org"
+#define WEBSITE_URL "github.com/rommulaner"
 
 /**
  * Set the vendor info the serial USB interface, if changeable.

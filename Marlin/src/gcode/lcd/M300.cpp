@@ -26,8 +26,8 @@
 
 #include "../gcode.h"
 
-#include "../../lcd/marlinui.h" // i2c-based BUZZ
-#include "../../libs/buzzer.h"  // Buzzer, if possible
+  #include "../../lcd/marlinui.h" // i2c-based BUZZ
+  #include "../../libs/buzzer.h"  // Buzzer, if possible
 
 /**
  * M300: Play a Tone / Add a tone to the queue
@@ -50,10 +50,10 @@ void GcodeSuite::M300() {
   const uint16_t frequency = parser.ushortval('S', 260);
   uint16_t duration = parser.ushortval('P', 1000);
 
-  // Limits the tone duration to 0-5 seconds.
-  NOMORE(duration, 5000U);
+    // Limits the tone duration to 0-5 seconds.
+    NOMORE(duration, 5000U);
 
-  BUZZ(duration, frequency);
-}
+    BUZZ(duration, frequency);
+  }
 
-#endif // HAS_SOUND
+#endif    // HAS_SOUND

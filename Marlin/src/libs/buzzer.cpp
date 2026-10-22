@@ -32,6 +32,11 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED (DGUS_LCD_UI_CREALITY_TOUCH)
+  #include "../lcd/extui/dgus_creality/DGUSTunes.h"
+  #include "../lcd/extui/dgus_creality/DGUSScreenHandler.h"
+#endif 
+
 Buzzer::state_t Buzzer::state;
 CircularQueue<tone_t, TONE_QUEUE_LENGTH> Buzzer::buffer;
 Buzzer buzzer;
@@ -65,7 +70,7 @@ void Buzzer::tick() {
     state.endtime = now + state.tone.duration;
 
     if (state.tone.frequency > 0) {
-      #if ENABLED(EXTENSIBLE_UI) && DISABLED(EXTUI_LOCAL_BEEPER)
+      #if ENABLED(EXTENSIBLE_UI) && DISABLED(EXTUI_LOCAL_BEEPER) && DISABLED(DGUS_LCD_UI_CREALITY_TOUCH)
         CRITICAL_SECTION_START();
         ExtUI::onPlayTone(state.tone.frequency, state.tone.duration);
         CRITICAL_SECTION_END();

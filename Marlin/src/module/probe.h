@@ -29,6 +29,16 @@
 
 #include "motion.h"
 
+typedef struct {
+  bool turn_heaters_off;
+  
+  uint16_t preheat_hotend_temp;
+  uint16_t preheat_bed_temp;
+  float static_z_offset;
+
+  bool stabilize_temperatures_after_probing;
+} probe_settings_t;
+
 #if ENABLED(DWIN_LCD_PROUI)
   #include "../lcd/e3v2/proui/dwin.h"
 #endif
@@ -76,6 +86,10 @@
 
 class Probe {
 public:
+
+  #if HAS_PROBE_SETTINGS
+    static probe_settings_t settings; 
+  #endif
 
   #if ENABLED(SENSORLESS_PROBING)
     typedef struct { bool x:1, y:1, z:1; } sense_bool_t;

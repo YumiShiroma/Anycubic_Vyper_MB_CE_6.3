@@ -2486,52 +2486,51 @@
   #define MAX_FANS 12  // Max supported fans
 #endif
 
-#define _IS_E_AUTO(N,F) (PIN_EXISTS(E##N##_AUTO_FAN) && E##N##_AUTO_FAN_PIN == FAN##F##_PIN)
-#define _HAS_FAN(F) (F < MAX_FANS && PIN_EXISTS(FAN##F) \
-                     && !(HAS_CONTROLLER_FAN && CONTROLLER_FAN_PIN == FAN##F##_PIN) \
-                     && !_IS_E_AUTO(0,F) && !_IS_E_AUTO(1,F) \
-                     && !_IS_E_AUTO(2,F) && !_IS_E_AUTO(3,F) \
-                     && !_IS_E_AUTO(4,F) && !_IS_E_AUTO(5,F) \
-                     && !_IS_E_AUTO(6,F) && !_IS_E_AUTO(7,F))
+#ifdef DGUS_LCD_UI_CREALITY_TOUCH
+  #if PIN_EXISTS(FAN0)    //only part cooling fan because only this is adjustable over UI (M42)
+    #define HAS_FAN0 1
+  #endif
+#else
 
-#if _HAS_FAN(0)
-  #define HAS_FAN0 1
+  #define _NOT_E_AUTO(N,F) (E##N##_AUTO_FAN_PIN != FAN##F##_PIN)
+  #define _HAS_FAN(F) (PIN_EXISTS(FAN##F) \
+                      && CONTROLLER_FAN_PIN != FAN##F##_PIN \
+                      && _NOT_E_AUTO(0,F) \
+                      && _NOT_E_AUTO(1,F) \
+                      && _NOT_E_AUTO(2,F) \
+                      && _NOT_E_AUTO(3,F) \
+                      && _NOT_E_AUTO(4,F) \
+                      && _NOT_E_AUTO(5,F) \
+                      && _NOT_E_AUTO(6,F) \
+                      && _NOT_E_AUTO(7,F) \
+                      && F < MAX_FANS)
+  #if PIN_EXISTS(FAN)
+    #define HAS_FAN0 1
+  #endif
+  #if _HAS_FAN(1)
+    #define HAS_FAN1 1
+  #endif
+  #if _HAS_FAN(2)
+    #define HAS_FAN2 1
+  #endif
+  #if _HAS_FAN(3)
+    #define HAS_FAN3 1
+  #endif
+  #if _HAS_FAN(4)
+    #define HAS_FAN4 1
+  #endif
+  #if _HAS_FAN(5)
+    #define HAS_FAN5 1
+  #endif
+  #if _HAS_FAN(6)
+    #define HAS_FAN6 1
+  #endif
+  #if _HAS_FAN(7)
+    #define HAS_FAN7 1
+  #endif
+  #undef _NOT_E_AUTO
+  #undef _HAS_FAN
 #endif
-#if _HAS_FAN(1)
-  #define HAS_FAN1 1
-#endif
-#if _HAS_FAN(2)
-  #define HAS_FAN2 1
-#endif
-#if _HAS_FAN(3)
-  #define HAS_FAN3 1
-#endif
-#if _HAS_FAN(4)
-  #define HAS_FAN4 1
-#endif
-#if _HAS_FAN(5)
-  #define HAS_FAN5 1
-#endif
-#if _HAS_FAN(6)
-  #define HAS_FAN6 1
-#endif
-#if _HAS_FAN(7)
-  #define HAS_FAN7 1
-#endif
-#if _HAS_FAN(8)
-  #define HAS_FAN8 1
-#endif
-#if _HAS_FAN(9)
-  #define HAS_FAN9 1
-#endif
-#if _HAS_FAN(10)
-  #define HAS_FAN10 1
-#endif
-#if _HAS_FAN(11)
-  #define HAS_FAN11 1
-#endif
-#undef _HAS_FAN
-#undef _IS_E_AUTO
 
 #if BED_OR_CHAMBER || HAS_FAN0
   #define BED_OR_CHAMBER_OR_FAN 1
@@ -2785,7 +2784,7 @@
   #define HAS_TEMPERATURE 1
 #endif
 
-#if HAS_TEMPERATURE && ANY(HAS_MARLINUI_MENU, HAS_DWIN_E3V2, HAS_DGUS_LCD_CLASSIC)
+#if HAS_TEMPERATURE && ANY(HAS_MARLINUI_MENU, HAS_DWIN_E3V2, HAS_DGUS_LCD_CLASSIC, DGUS_LCD_UI_CREALITY_TOUCH)
   #ifdef PREHEAT_10_LABEL
     #define PREHEAT_COUNT 10
   #elif defined(PREHEAT_9_LABEL)
@@ -3286,6 +3285,10 @@
 
 #if PIN_EXISTS(SAFE_POWER) && DISABLED(DISABLE_DRIVER_SAFE_POWER_PROTECT)
   #define HAS_DRIVER_SAFE_POWER_PROTECT 1
+#endif
+
+#if ANY(PROBING_HEATERS_OFF, PREHEAT_BEFORE_PROBING)
+  #define HAS_PROBE_SETTINGS 1
 #endif
 
 #if ANY(ENDSTOPPULLDOWNS, ENDSTOPPULLDOWN_ZMIN_PROBE, \

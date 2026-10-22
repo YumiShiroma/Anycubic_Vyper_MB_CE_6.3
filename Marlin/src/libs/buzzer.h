@@ -117,7 +117,7 @@
   extern Buzzer buzzer;
 
   // Buzz directly via the BEEPER pin tone queue
-  #define BUZZ(V...) buzzer.tone(V)
+  #define BUZZ(V_BUZZ...) buzzer.tone(V_BUZZ)
 
 #elif USE_MARLINUI_BUZZER
 

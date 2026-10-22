@@ -38,6 +38,7 @@
 #include "../gcode/gcode.h"
 #include "../lcd/marlinui.h"
 
+
 #include "../MarlinCore.h" // for stop(), disable_e_steppers(), wait_for_user_response()
 
 #if HAS_LEVELING
@@ -106,6 +107,11 @@
 Probe probe;
 
 xyz_pos_t Probe::offset; // Initialized by settings.load
+
+#if HAS_PROBE_SETTINGS
+probe_settings_t Probe::settings;  // Initialized by settings.load()
+  IF_ENABLED(PROBING_HEATERS_OFF, const bool respect_leveling_heatup_settings = parser.seen('U') ? parser.value_bool() : true);
+#endif
 
 #if HAS_PROBE_XY_OFFSET
   const xy_pos_t &Probe::offset_xy = Probe::offset;
@@ -330,7 +336,11 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
   #endif
 
   void Probe::set_probing_paused(const bool dopause) {
-    TERN_(PROBING_HEATERS_OFF, thermalManager.pause_heaters(dopause));
+    #if ENABLED(PROBING_HEATERS_OFF)
+      if (TERN1(HAS_PROBE_SETTINGS, settings.turn_heaters_off)) { thermalManager.pause_heaters(dopause); }
+    #else
+      TERN_(PROBING_HEATERS_OFF, thermalManager.pause_heaters(dopause));
+    #endif
     TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
     TERN_(PROBING_ESTEPPERS_OFF, if (dopause) stepper.disable_e_steppers());
     #if ENABLED(PROBING_STEPPERS_OFF) && DISABLED(DELTA)
@@ -563,8 +573,11 @@ bool Probe::set_deployed(const bool deploy) {
   #endif
 
   // If preheating is required before any probing...
-  // TODO: Consider skipping this for things like M401, G34, etc.
-  TERN_(PREHEAT_BEFORE_PROBING, if (deploy) preheat_for_probing(PROBING_NOZZLE_TEMP, PROBING_BED_TEMP));
+  #if HAS_PROBE_SETTINGS
+    TERN_(PREHEAT_BEFORE_PROBING, if (deploy) preheat_for_probing(settings.preheat_hotend_temp, settings.preheat_bed_temp));  
+  #else
+    TERN_(PREHEAT_BEFORE_PROBING, if (deploy) preheat_for_probing(PROBING_NOZZLE_TEMP, PROBING_BED_TEMP));
+  #endif
 
   do_blocking_move_to(old_xy);
   endstops.enable_z_probe(deploy);
@@ -596,6 +609,18 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   #if ALL(HAS_TEMP_HOTEND, WAIT_FOR_HOTEND)
     thermalManager.wait_for_hotend_heating(active_extruder);
   #endif
+
+  #if ENABLED(PROBING_HEATERS_OFF)
+    // If we're going to print then we must ensure we are back on temperature before we continue
+      if (respect_leveling_heatup_settings && TERN1(HAS_PROBE_SETTINGS, probe.settings.turn_heaters_off && probe.settings.stabilize_temperatures_after_probing) && (queue.has_commands_queued() || planner.has_blocks_queued() || print_job_timer.isRunning())) {
+        SERIAL_ECHOLN("Waiting to heat-up again before continueing");
+        ui.set_status("Waiting for heat-up...");
+        thermalManager.wait_for_hotend(0);
+        #if DISABLED(WAIT_ONLY_FOR_HOTEND)
+          thermalManager.wait_for_bed_heating();
+        #endif
+      }
+#endif 
 
   #if ENABLED(BLTOUCH)
     if (!bltouch.high_speed_mode && bltouch.deploy())

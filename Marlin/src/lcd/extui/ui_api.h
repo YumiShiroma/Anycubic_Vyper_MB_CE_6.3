@@ -232,6 +232,15 @@ namespace ExtUI {
       inline void onMeshUpdate(const xy_int8_t &pos, probe_state_t state) { onMeshUpdate(pos.x, pos.y, state); }
     #endif
   #endif
+  
+  #if ENABLED(G26_MESH_VALIDATION)    
+    void onMeshValidationStarting();
+    void onMeshValidationFinished();
+  #endif
+
+  void setCancelState();
+  void resetCancelState();
+  bool isCanceled();
 
   // Send an 'M876 S' host response
   #if ENABLED(HOST_PROMPT_SUPPORT)

@@ -52,6 +52,11 @@
   #include "../../../lcd/e3v2/proui/dwin.h"
 #endif
 
+#if ENABLED(PROBING_HEATERS_OFF)
+  #include "../../../module/temperature.h"
+  #include "../../../module/printcounter.h"
+#endif
+
 #if HAS_MULTI_HOTEND
   #include "../../../module/tool_change.h"
 #endif
@@ -242,6 +247,8 @@ G29_TYPE GcodeSuite::G29() {
 
   // Q = Query leveling and G29 state
   const bool seenQ = ANY(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen_test('Q');
+
+  IF_ENABLED(PROBING_HEATERS_OFF, const bool respect_leveling_heatup_settings = parser.seen('U') ? parser.value_bool() : true);
 
   // G29 Q is also available if debugging
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -668,8 +675,11 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ABL_USES_GRID
 
-      bool zig = PR_OUTER_SIZE & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
-
+      #if GRID_MAX_POINTS == (4*4)    // Ends at Right and FRONT_BACK_PROBE_BED_POSITION
+        bool zig = 1;
+      #else
+        bool zig = PR_OUTER_SIZE & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
+      #endif 
       // Outer loop is X with PROBE_Y_FIRST enabled
       // Outer loop is Y with PROBE_Y_FIRST disabled
       for (PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_SIZE && !isnan(abl.measured_z); PR_OUTER_VAR++) {
@@ -949,6 +959,17 @@ G29_TYPE GcodeSuite::G29() {
   TERN_(HAS_MULTI_HOTEND, if (abl.tool_index != 0) tool_change(abl.tool_index));
 
   report_current_position();
+
+  #if ENABLED(PROBING_HEATERS_OFF)
+  // If we're going to print then we must ensure we are back on temperature before we continue
+    if (respect_leveling_heatup_settings && TERN1(HAS_PROBE_SETTINGS, probe.settings.turn_heaters_off && probe.settings.stabilize_temperatures_after_probing) && (queue.has_commands_queued() || planner.has_blocks_queued() || print_job_timer.isRunning())) {
+      SERIAL_ECHOLN("Waiting to heat-up again before continueing");
+      ui.set_status("Waiting for heat-up...");
+
+      thermalManager.wait_for_hotend(0);
+      thermalManager.wait_for_bed_heating();
+    }
+  #endif
 
   G29_RETURN(isnan(abl.measured_z), true);
 }

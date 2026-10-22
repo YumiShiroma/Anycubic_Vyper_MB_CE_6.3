@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include "../../Version.h"
+
 /**
  * Release version. Leave the Marlin version or apply a custom scheme.
  */

@@ -996,6 +996,13 @@ namespace ExtUI {
 
   #endif // HAS_LEVELING
 
+  #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
+    bool is_canceled;
+    void setCancelState() { is_canceled = true; }
+    void resetCancelState() { is_canceled = false; }
+    bool isCanceled() { return is_canceled; }
+  #endif
+
   #if ENABLED(HOST_PROMPT_SUPPORT)
     void setHostResponse(const uint8_t response) { hostui.handle_response(response); }
   #endif

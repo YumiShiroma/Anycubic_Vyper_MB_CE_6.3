@@ -66,6 +66,11 @@
   #include "../../lcd/e3v2/proui/dwin.h"
 #endif
 
+#if ENABLED(PROBING_HEATERS_OFF)
+  #include "../../module/temperature.h"
+  #include "../../module/printcounter.h"
+#endif
+
 #if ENABLED(LASER_FEATURE)
   #include "../../feature/spindle_laser.h"
 #endif
@@ -206,6 +211,8 @@ void GcodeSuite::G28() {
   if (DEBUGGING(LEVELING)) log_machine_info();
 
   TERN_(BD_SENSOR, bdl.config_state = 0);
+
+  IF_ENABLED(PROBING_HEATERS_OFF, const bool respect_leveling_heatup_settings = parser.seen('U') ? parser.value_bool() : true);
 
   /**
    * Set the laser power to false to stop the planner from processing the current power setting.
@@ -501,8 +508,24 @@ void GcodeSuite::G28() {
             if (TERN1(POWER_LOSS_RECOVERY, !parser.seen_test('H'))) home_z_safely(); else homeaxis(Z_AXIS);
           #else
             homeaxis(Z_AXIS);
+            #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
+              float z_offset_backup;
+              z_offset_backup = probe.offset.z;
+              ExtUI::smartAdjustAxis_steps(ExtUI::mmToWholeSteps(probe.settings.static_z_offset + probe.offset.z, ExtUI::axis_t::Z), ExtUI::axis_t::Z, true);   //apply static z-offset to get nozzle to bed height + normal z-offset
+              probe.offset.z = z_offset_backup;
+            #endif
+
           #endif
           TERN_(HAS_BED_PROBE, probe.move_z_after_homing());
+          #if ENABLED(PROBING_HEATERS_OFF)
+            // If we're going to print then we must ensure we are back on temperature before we continue
+            if (respect_leveling_heatup_settings && TERN1(HAS_PROBE_SETTINGS, probe.settings.turn_heaters_off && probe.settings.stabilize_temperatures_after_probing) && (queue.has_commands_queued() || planner.has_blocks_queued() || print_job_timer.isRunning())) {
+              SERIAL_ECHOLN("Waiting to heat-up again before continueing");
+              ui.set_status("Waiting for heat-up...");
+              thermalManager.wait_for_hotend(0);
+              thermalManager.wait_for_bed_heating();
+            }
+          #endif
         }
       #endif
 

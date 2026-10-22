@@ -1847,8 +1847,10 @@ void MarlinUI::init() {
     const PauseMode mode/*=PAUSE_MODE_SAME*/,
     const uint8_t extruder/*=active_extruder*/
   ) {
-    pause_mode = mode;
-    ExtUI::pauseModeStatus = message;
+    #if M600_PURGE_MORE_RESUMABLE
+      pause_mode = mode;
+      ExtUI::pauseModeStatus = message;
+    #endif
     switch (message) {
       case PAUSE_MESSAGE_PARKING:  ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING)); break;
       case PAUSE_MESSAGE_CHANGING: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_INIT)); break;

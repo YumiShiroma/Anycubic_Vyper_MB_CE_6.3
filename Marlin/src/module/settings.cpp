@@ -587,6 +587,11 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // Probe settings
+  //
+  probe_settings_t probe_settings;
+
+  //
   // Input Shaping
   //
   #if ENABLED(INPUT_SHAPING_X)
@@ -1645,6 +1650,13 @@ void MarlinSettings::postprocess() {
     #if HAS_MULTI_LANGUAGE
       EEPROM_WRITE(ui.language);
     #endif
+    // 
+    // Probe settings
+    //
+    #if !HAS_PROBE_SETTINGS
+      const probe_settings_t probe_setting_defaults = { 1 };
+    #endif
+    EEPROM_WRITE(TERN(HAS_PROBE_SETTINGS, probe.settings, probe_setting_defaults));
 
     //
     // Model predictive control
@@ -2690,6 +2702,16 @@ void MarlinSettings::postprocess() {
         if (ui_language >= NUM_LANGUAGES) ui_language = 0;
         ui.set_language(ui_language);
       }
+
+      #endif
+      // 
+      // Probe settings
+      //
+      #if HAS_PROBE_SETTINGS
+        EEPROM_READ(probe.settings);
+      #else 
+        probe_settings_t probe_settings;
+        EEPROM_READ(probe_settings);
       #endif
 
       //
@@ -3461,6 +3483,21 @@ void MarlinSettings::reset() {
   //
   TERN_(DGUS_LCD_UI_MKS, MKS_reset_settings());
 
+  #if HAS_PROBE_SETTINGS
+    probe.settings.turn_heaters_off = true;
+
+    #if PROBING_NOZZLE_TEMP
+      probe.settings.preheat_hotend_temp = PROBING_NOZZLE_TEMP;
+    #endif
+
+    #if PROBING_BED_TEMP
+      probe.settings.preheat_bed_temp = PROBING_BED_TEMP;
+    #endif
+
+    probe.settings.static_z_offset = 0;
+    probe.settings.stabilize_temperatures_after_probing = false;
+  #endif
+
   //
   // Ender-3 V2 with ProUI
   //
@@ -3814,6 +3851,16 @@ void MarlinSettings::reset() {
     // Model predictive control
     //
     TERN_(MPCTEMP, gcode.M306_report(forReplay));
+
+    #if ENABLED(PROBING_HEATERS_OFF)
+      CONFIG_ECHO_HEADING("Improve bed leveling accuracy (Probe heaters off):");
+      CONFIG_ECHO_START();
+      SERIAL_ECHOPGM("  C001 S", probe.settings.turn_heaters_off ? 1 : 0);
+      SERIAL_ECHOPGM(" H", probe.settings.preheat_hotend_temp);
+      SERIAL_ECHOPGM(" B", probe.settings.preheat_bed_temp);
+      SERIAL_ECHOPGM(" Z", probe.settings.static_z_offset);
+      SERIAL_ECHOLNPGM(" W", probe.settings.stabilize_temperatures_after_probing);
+    #endif
   }
 
 #endif // !DISABLE_M503
