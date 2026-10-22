@@ -70,7 +70,7 @@
 //#define VYPER_BUILD_LA_JD_TE    // with linear advance and junction deviation enabled and with software serial connection to e stepper
 //#define VYPER_BUILD_LA_CJ_TE    // with linear advance and classic jerk enabled and with software serial connection to e stepper
 #define VYPER_BUILD_LA_JD_IS      // with linear advance and junction deviation enabled and input shaping
-// #define VYPER_BUILD_LA_CJ_IS    // with linear advance and classic jerk enabled and input shaping
+//#define VYPER_BUILD_LA_CJ_IS    // with linear advance and classic jerk enabled and input shaping
 //#define VYPER_BUILD_LA_JD_IS_T  // with linear advance and junction deviation enabled and input shaping and with uart connection to TMC2209's for x, y, z and z2
 //#define VYPER_BUILD_LA_CJ_IS_T  // with linear advance and classic jerk enabled and input shaping and with uart connection to TMC2209's for x, y, z and z2
 //#define VYPER_BUILD_LA_JD_IS_TE // with linear advance and junction deviation enabled and input shaping and with software serial connection to e stepper
