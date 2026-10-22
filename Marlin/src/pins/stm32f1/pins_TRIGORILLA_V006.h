@@ -88,8 +88,7 @@
 //
 // Fans
 //
-#define FAN_PIN                             PA0   // part cooling fan
-//#define FAN0_PIN                            FAN_PIN
+#define FAN0_PIN                            PA0   // part cooling fan
 #define FAN1_PIN                            PA14  // controller fan
 #define FAN2_PIN                            -1    // not connected
 #define CONTROLLER_FAN_PIN                  FAN1_PIN

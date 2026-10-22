@@ -212,7 +212,7 @@ void GcodeSuite::G28() {
 
   TERN_(BD_SENSOR, bdl.config_state = 0);
 
-  IF_ENABLED(PROBING_HEATERS_OFF, const bool respect_leveling_heatup_settings = parser.seen('U') ? parser.value_bool() : true);
+  TERN_(PROBING_HEATERS_OFF, const bool respect_leveling_heatup_settings = parser.seen('U') ? parser.value_bool() : true);
 
   /**
    * Set the laser power to false to stop the planner from processing the current power setting.

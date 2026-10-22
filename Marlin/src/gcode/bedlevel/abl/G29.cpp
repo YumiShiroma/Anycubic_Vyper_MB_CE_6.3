@@ -248,7 +248,7 @@ G29_TYPE GcodeSuite::G29() {
   // Q = Query leveling and G29 state
   const bool seenQ = ANY(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen_test('Q');
 
-  IF_ENABLED(PROBING_HEATERS_OFF, const bool respect_leveling_heatup_settings = parser.seen('U') ? parser.value_bool() : true);
+  TERN_(PROBING_HEATERS_OFF, const bool respect_leveling_heatup_settings = parser.seen('U') ? parser.value_bool() : true);
 
   // G29 Q is also available if debugging
   #if ENABLED(DEBUG_LEVELING_FEATURE)

@@ -110,7 +110,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
 
 #if HAS_PROBE_SETTINGS
 probe_settings_t Probe::settings;  // Initialized by settings.load()
-  IF_ENABLED(PROBING_HEATERS_OFF, const bool respect_leveling_heatup_settings = parser.seen('U') ? parser.value_bool() : true);
+  TERN_(PROBING_HEATERS_OFF, const bool respect_leveling_heatup_settings = parser.seen('U') ? parser.value_bool() : true);
 #endif
 
 #if HAS_PROBE_XY_OFFSET
