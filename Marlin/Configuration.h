@@ -1606,7 +1606,8 @@
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 10
+// CE-6.3 test: keep the nozzle away from the spring-steel plate edge.
+#define PROBING_MARGIN 15
 
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_FEEDRATE (80*60)
@@ -1615,7 +1616,9 @@
 #define Z_PROBE_FEEDRATE_FAST (1*60)
 
 // Feedrate (mm/min) for the "accurate" probe of each point
-#define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST)
+// CE-6.3 test: slower final approach gives the strain gauge time to trigger
+// before the nozzle deflects the plate.
+#define Z_PROBE_FEEDRATE_SLOW (0.5*60)
 
 /**
  * Probe Activation Switch
@@ -1641,7 +1644,7 @@
 #endif
 #if ENABLED(PROBE_TARE)
   #define PROBE_TARE_TIME  300    // (ms) Time to hold tare pin
-  #define PROBE_TARE_DELAY 200    // (ms) Delay after tare before
+  #define PROBE_TARE_DELAY 500    // (ms) Delay after tare before
   #define PROBE_TARE_STATE LOW   // State to write pin for tare
   //#define PROBE_TARE_PIN PA5    // Override default pin
   #if ENABLED(PROBE_ACTIVATION_SWITCH)
@@ -1684,9 +1687,10 @@
  * Example: 'M851 Z-5' with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: 'M851 Z+1' with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE    5 // Z Clearance for Deploy/Stow
-#define Z_CLEARANCE_BETWEEN_PROBES  2 // Z Clearance between probe points
-#define Z_CLEARANCE_MULTI_PROBE     2 // Z Clearance between multiple probes
+// CE-6.3 test: stock-like clearances give the plate and sensor time to settle.
+#define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
+#define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
+#define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
 //#define Z_AFTER_PROBING           5 // Z position after probing is done
 
 #if ENABLED(VYPER_NOZZLE_HOMING)
