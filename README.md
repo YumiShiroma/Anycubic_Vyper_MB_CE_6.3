@@ -22,6 +22,45 @@ unchanged, so the CE 6.2.2 LCD works with this firmware.
   the upgrade.
 * Default active variant remains `VYPER_BUILD_LA_JD_IS`.
 
+## Machine-specific defaults in this fork
+
+This fork is also the firmware running on the author's own Vyper, so two defaults
+differ from the generic community firmware. Both are one-line changes if your
+machine is different.
+
+### Probing above the bed mount inserts
+
+The four bed mount inserts of this machine sit **35 mm** from the left/right edges
+and **50 / 51 mm** from the front/back edges of the 250 x 255 bed. The plate is
+unsupported (cantilevered) outside that rectangle, and probing near the sheet edge
+pressed the overhang down, dragging the corner readings 0.15-0.3 mm below the real
+surface. The probe grid is therefore kept above the inserts:
+
+```cpp
+#define PROBING_MARGIN_LEFT  35
+#define PROBING_MARGIN_RIGHT 35
+#define PROBING_MARGIN_FRONT 50
+#define PROBING_MARGIN_BACK  51
+```
+
+With 4x4 points this gives `X = 35 / 95 / 155 / 215` and `Y = 50 / 101.3 / 152.7 / 204`.
+The strip outside the inserts is no longer measured and is extrapolated by the
+firmware. On this machine the mesh range dropped from 0.31-0.33 mm to 0.199 mm and
+the remaining error is a mechanical twist of the rear-right / front-left diagonal.
+
+If your mounts are in a different place, adjust these four values. For the stock
+symmetric behaviour replace them with a single `#define PROBING_MARGIN 15`.
+
+### Filament runout sensor disabled
+
+```cpp
+//#define FILAMENT_RUNOUT_SENSOR
+```
+
+This machine has no runout sensor fitted, so the feature is compiled out to avoid
+false runout stops. Uncomment the line if your printer has the sensor. `M600` and
+the normal filament-change menu keep working either way.
+
 ## Upgrading from CE 6.2.x
 
 1. Keep a copy of your current calibration values if you want to restore them
