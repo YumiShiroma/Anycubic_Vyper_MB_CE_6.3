@@ -24,9 +24,31 @@ unchanged, so the CE 6.2.2 LCD works with this firmware.
 
 ## Machine-specific defaults in this fork
 
-This fork is also the firmware running on the author's own Vyper, so two defaults
-differ from the generic community firmware. Both are one-line changes if your
-machine is different.
+This fork is also the firmware running on the author's own Vyper. That machine is
+no longer stock, so the defaults below differ from the generic community firmware.
+The firmware-side ones are one-line changes if your machine is different.
+
+### Hardware modifications
+
+The printer has been rebuilt around the stock frame; the strain-gauge probe under
+the tool head is retained.
+
+* **Direct drive extruder** instead of the stock bowden setup.
+  * Tool head platform and part cooling duct:
+    [Hero Me Gen7 Platform Release4](https://www.printables.com/model/39322-hero-me-gen7-platform-release4)
+  * Extruder:
+    [Sailfin Extruder Remix](https://www.printables.com/model/282299-sailfin-extruderremix)
+* **Bed mounting**: the stock rigid corner mounts were replaced with four silicone
+  inserts, one under each corner screw. See the probing section below.
+* **X and Y motors and toothed pulleys replaced**, and the extruder is now direct
+  drive, so `DEFAULT_AXIS_STEPS_PER_UNIT` is not stock either:
+
+```cpp
+// this machine
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 100, 100, 400, 689 }
+// stock Vyper for comparison
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {  80, 100, 400, 405 }
+```
 
 ### Probing above the bed mount inserts
 
