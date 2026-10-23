@@ -58,6 +58,7 @@ uint16_t DGUSScreenHandler::ConfirmVP;
 #if ENABLED(SDSUPPORT)
   int16_t DGUSScreenHandler::top_file = 0;
   int16_t DGUSScreenHandler::file_to_print = 0;
+  bool DGUSScreenHandler::SDErrorPopup = false;
   static ExtUI::FileList filelist;
 #endif
 
@@ -671,7 +672,20 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
   void DGUSScreenHandler::SDCardInserted() {
     top_file = 0;
     filelist.refresh();
+
     auto cs = ScreenHandler.getCurrentScreen();
+
+    // A successful mount clears a previous "Media Init Fail" message and
+    // dismisses the SD error popup, if it is still on screen.
+    if (SDErrorPopup) {
+      SDErrorPopup = false;
+      setstatusmessagePGM(PSTR(""));
+      if (cs == DGUSLCD_SCREEN_POPUP) {
+        ScreenHandler.GotoScreen(DGUSLCD_SCREEN_SDFILELIST);
+        return;
+      }
+    }
+
     if (cs == DGUSLCD_SCREEN_MAIN || cs == DGUSLCD_SCREEN_SETUP)
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_SDFILELIST);
   }
@@ -689,6 +703,15 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
 
   void DGUSScreenHandler::SDCardError() {
     DGUSScreenHandler::SDCardRemoved();
+
+    // Ignore errors reported after the card is already gone (contact bounce
+    // when pulling it out). Nothing to show and nothing to dismiss later.
+    if (!ExtUI::isMediaInserted()) {
+      setstatusmessagePGM(PSTR(""));
+      return;
+    }
+
+    SDErrorPopup = true;
     ScreenHandler.sendinfoscreen(PSTR("NOTICE"), nullptr, PSTR("SD card error"), nullptr, true, true, true, true);
     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
   }

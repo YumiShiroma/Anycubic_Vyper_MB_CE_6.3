@@ -433,6 +433,7 @@ private:
   #if ENABLED(SDSUPPORT)
     static int16_t top_file;    ///< file on top of file chooser
     static int16_t file_to_print; ///< touched file to be confirmed
+    static bool SDErrorPopup;   ///< the SD error popup is currently shown
   #endif
 
 private:

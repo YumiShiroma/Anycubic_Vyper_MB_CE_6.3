@@ -156,7 +156,7 @@ bool hasPrintTimer = false;
     else if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_POPUP) {
       DEBUG_ECHOLNPGM("User confirmation canceled");
 
-      ScreenHandler.setstatusmessagePGM(nullptr);
+      ScreenHandler.setstatusmessagePGM(PSTR(""));
       ScreenHandler.PopToOldScreen();
     }
   }
