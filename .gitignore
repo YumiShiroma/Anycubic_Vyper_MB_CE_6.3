@@ -173,3 +173,7 @@ tags
 !.aiderignore
 .env
 sqlite*.db
+
+# Local build output (scripts/build_all.sh)
+dist/
+__pycache__/

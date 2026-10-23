@@ -1,0 +1,93 @@
+name: Bug report
+description: Something does not work as expected on the Vyper CE firmware
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing! Please check the troubleshooting section of the
+        README before filing. The LCD firmware must stay at CE 6.2.2.
+
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware version
+      description: The full string from `M115` or from the boot screen.
+      placeholder: "Vyper-CE-6.3.1(LA+JD+IS)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: variant
+    attributes:
+      label: Build variant
+      options:
+        - CJ
+        - CJ_IS
+        - LA_JD
+        - LA_CJ
+        - LA_JD_IS
+        - LA_CJ_IS
+        - LA_JD_T
+        - LA_CJ_T
+        - LA_JD_IS_T
+        - LA_CJ_IS_T
+        - LA_JD_TE
+        - LA_CJ_TE
+        - LA_JD_IS_TE
+        - LA_CJ_IS_TE
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: lcd
+    attributes:
+      label: LCD firmware version
+      description: Shown on the display or in the handshake. Expected value is 622.
+      placeholder: "622"
+    validations:
+      required: true
+
+  - type: textarea
+    id: mods
+    attributes:
+      label: Machine modifications
+      description: Direct drive, bed mounts, probe changes, etc. Write "stock" if none.
+      placeholder: "stock Vyper / silicone bed mounts / ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Insert an SD card
+        2. Remove it while idle
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include photos of the screen and the serial log if possible.
+    validations:
+      required: true
+
+  - type: textarea
+    id: m503
+    attributes:
+      label: M503 output (optional)
+      description: Paste the output of `M503` and, if relevant, `M420 V`.
+      render: text

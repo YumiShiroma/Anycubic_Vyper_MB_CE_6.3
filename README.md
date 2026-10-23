@@ -1,13 +1,28 @@
-# Community firmware for Anycubic Vyper — CE 6.3.0
+# Community firmware for Anycubic Vyper — CE 6.3.1
 
 This repository contains the **mainboard** firmware only. The LCD/touch-screen firmware
 stays at **CE 6.2.2** and does not need to be reflashed:
 
 * LCD firmware: <https://github.com/rommulaner/Anycubic_Vyper_LCD_CE_6.2>
 
-CE 6.3.0 is a port of the Vyper CE 6.2.2 customizations to **Marlin 2.1.2.9**.
+CE 6.3.x is a port of the Vyper CE 6.2.2 customizations to **Marlin 2.1.2.9**.
 The DGUS touch protocol and the `EXPECTED_UI_VERSION_MAJOR = 622` handshake are
 unchanged, so the CE 6.2.2 LCD works with this firmware.
+
+See [CHANGELOG.md](CHANGELOG.md) for the full history.
+
+## What changed in 6.3.1
+
+Maintenance release. The EEPROM layout is unchanged from 6.3.0, so a 6.3.0
+configuration is kept.
+
+* The "SD card error" popup no longer stays on screen after the card is
+  reinserted, and the stale `Media Init Fail` status is cleared.
+* One automatic remount retry when a card fails to initialize on the first try.
+* Fixed a potential hard fault when cancelling a host confirmation
+  (`strlen(NULL)` in the DGUS status handler).
+* CI builds every variant; `scripts/build_all.sh` and a `Dockerfile` make builds
+  reproducible. See [docs/TESTING.md](docs/TESTING.md) for the test checklist.
 
 ## What changed in 6.3.0
 
@@ -96,8 +111,12 @@ the normal filament-change menu keep working either way.
 1. Keep a copy of your current calibration values if you want to restore them
    manually later.
 2. Flash the new `main_board_*.bin` using the normal Vyper SD-card procedure.
-3. On first boot the EEPROM is reset. Run `M502` followed by `M500` (or use the
-   LCD reset/initialize action) to store the defaults.
+   Keep only one `main_board_*.bin` in the card root; remove the previous one
+   before copying a new image.
+3. When coming from CE 6.2.x the EEPROM layout changes (`V89`), so the first
+   boot after flashing resets it. Run `M502` followed by `M500` (or use the LCD
+   reset/initialize action) to store the defaults. Upgrading from 6.3.0 to
+   6.3.1 keeps the existing settings.
 4. Recalibrate at least:
    * Z offset / first layer,
    * bed mesh,
@@ -110,10 +129,31 @@ The LCD firmware does **not** need to be flashed, but it must remain on CE 6.2.2
 
 ## Building
 
-The project is a normal PlatformIO/Marlin project. The active environment is:
+The project is a normal PlatformIO/Marlin project. The active environment is
+`STM32F103RET6_ac_tri_f1`.
+
+Single build:
 
 ```bash
 pio run -e STM32F103RET6_ac_tri_f1
+```
+
+All variants (recommended before a release; checks the 491,520-byte flash budget
+and copies the images to `dist/`):
+
+```bash
+scripts/build_all.sh              # all 14 variants
+scripts/build_all.sh LA_JD_IS     # one variant
+```
+
+GitHub Actions builds every variant on each push and pull request
+(`.github/workflows/build.yml`). A pinned toolchain is available through the
+Docker image and the VS Code devcontainer:
+
+```bash
+docker build -t vyper-ce .
+docker run --rm -v "$PWD":/firmware -w /firmware vyper-ce \
+    bash scripts/build_all.sh LA_JD_IS
 ```
 
 The firmware image is written to:
@@ -125,13 +165,17 @@ The firmware image is written to:
 The `random-Vyper-bin.py` script names the binary with a timestamp, as expected by
 the Vyper flashing procedure.
 
-If you have built the old Anycubic firmware before, remove/rename an old
-`framework-arduinoststm32@4.10900.200819` package in `~/.platformio/packages`
-before building, as described in the original community firmware README.
+PlatformIO downloads the ARM toolchain on the first build. If the download is
+blocked or a stale toolchain package is present, remove
+`~/.platformio/packages/toolchain-gccarmnoneeabi` and let PlatformIO fetch it
+again. If you have built the old Anycubic firmware before, also remove/rename an
+old `framework-arduinoststm32@4.10900.200819` package in
+`~/.platformio/packages`, as described in the original community firmware README.
 
 ## Build variants
 
-Select exactly one variant near the top of `Marlin/Configuration.h`:
+Select exactly one variant near the top of `Marlin/Configuration.h` (or let the
+helper script do it):
 
 ```cpp
 //#define VYPER_BUILD_CJ          // classic jerk
@@ -150,6 +194,12 @@ Select exactly one variant near the top of `Marlin/Configuration.h`:
 //#define VYPER_BUILD_LA_CJ_IS_TE
 ```
 
+From the command line:
+
+```bash
+python3 scripts/set_variant.py LA_JD_IS
+```
+
 `VYPER_NOZZLE_HOMING` is optional:
 
 * Undefined (default): home Z with the two stock Z sensors.
@@ -166,11 +216,58 @@ triggered and then uses the nozzle probe as the final Z reference in the centre 
 the bed. Nozzle homing gives mesh values closer to zero, but requires a working
 probe and correctly adjusted Z flags.
 
+## Troubleshooting
+
+### "Media Init Fail" or "SD card error" on the display
+
+* Use a FAT32 card with an MBR partition table; cards up to 32 GB are the safe
+  choice (exFAT and GPT are not supported).
+* CE 6.3.1 retries the mount once and clears the message automatically after a
+  successful mount. If the message comes back every time, the card, its
+  contacts or the slot are the likely cause: try another card, clean the
+  contacts and make sure the card clicks into place.
+* Only one `main_board_*.bin` should be on the card when flashing.
+
+### "UI version mismatch" or the display does not respond to touch
+
+The mainboard expects LCD firmware CE 6.2.2 (`EXPECTED_UI_VERSION_MAJOR = 622`).
+Reflash the LCD from the link at the top of this README; do not mix it with
+mainboard firmware from a different UI generation.
+
+### Settings are gone after the upgrade
+
+6.3.0 changed the EEPROM layout to `V89`, so the first boot after flashing it
+resets the EEPROM. Run `M502` then `M500`, and recalibrate the Z offset, the bed
+mesh and the PID values. Upgrading from 6.3.0 to 6.3.1 does **not** reset the
+EEPROM.
+
+### The build fails while downloading the toolchain
+
+PlatformIO needs the ARM toolchain on the first build. On restricted networks use
+the container:
+
+```bash
+docker build -t vyper-ce .
+docker run --rm -v "$PWD":/firmware -w /firmware vyper-ce \
+    bash scripts/build_all.sh LA_JD_IS
+```
+
+If a stale `toolchain-gccarmnoneeabi` package is present, delete it from
+`~/.platformio/packages` and rebuild.
+
+### Rolling back to CE 6.2
+
+Build and flash a 6.2.2 image from the `6.2-legacy` branch. The LCD firmware does
+not need to be changed when moving between 6.2 and 6.3.
+
 ## License
 
 Marlin and this community firmware are published under the GPL v3. See
 [LICENSE](LICENSE).
 
-The STM32 libraries used here are subject to ST's license terms. The Vyper
-mainboard uses a GD32 (non-ST) MCU; building and using this firmware is your own
-responsibility with respect to those terms.
+This repository distributes **source only**. Prebuilt firmware images are not
+published here because the STM32 support libraries used by the build are subject
+to ST's license terms. Build the firmware yourself with the instructions above.
+
+The Vyper mainboard uses a GD32 (non-ST) MCU; building and using this firmware is
+your own responsibility with respect to those terms.

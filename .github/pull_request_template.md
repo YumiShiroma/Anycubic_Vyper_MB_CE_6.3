@@ -1,33 +1,21 @@
 <!--
-
-Submitting a Pull Request
-
-- Please fill out all sections of this form. You can delete the helpful comments.
-- Pull Requests without clear information will take longer and may even be rejected.
-- We get a high volume of submissions so please be patient during review.
-
+Thanks for contributing! Please keep the checklist below short and factual.
 -->
 
-### Description
+### What does this change?
 
-<!--
+<!-- A short description and the motivation. -->
 
-Clearly describe the submitted changes with lots of details. Include images where helpful. Initial reviewers may not be familiar with the subject, so be as thorough as possible. You can use MarkDown syntax to improve readability with bullet lists, code blocks, and so on. PREVIEW and fix up formatting before submitting.
+### How was it tested?
 
--->
+- Firmware version / build variant:
+- LCD firmware version (expected: CE 6.2.2):
+- Printer / hardware modifications:
+- Test print or scenario:
 
-### Requirements
+### Checklist
 
-<!-- Does this PR require a specific board, LCD, etc.? -->
-
-### Benefits
-
-<!-- What does this PR fix or improve? -->
-
-### Configurations
-
-<!-- Attach Configurations ZIP and any other files needed to test this PR. -->
-
-### Related Issues
-
-<!-- Does this PR fix a bug or fulfill a Feature Request? Link related Issues here. -->
+- [ ] The affected variant(s) build with `scripts/build_all.sh <VARIANT>`
+- [ ] No build output, binaries or `dist/` files are included
+- [ ] The DGUS protocol and `EXPECTED_UI_VERSION_MAJOR = 622` are unchanged
+- [ ] README / CHANGELOG updated when behavior or defaults changed

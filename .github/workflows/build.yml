@@ -1,0 +1,57 @@
+name: Build firmware
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.variant }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        variant:
+          - CJ
+          - CJ_IS
+          - LA_JD
+          - LA_CJ
+          - LA_JD_IS
+          - LA_CJ_IS
+          - LA_JD_T
+          - LA_CJ_T
+          - LA_JD_IS_T
+          - LA_CJ_IS_T
+          - LA_JD_TE
+          - LA_CJ_TE
+          - LA_JD_IS_TE
+          - LA_CJ_IS_TE
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: platformio-${{ runner.os }}-${{ hashFiles('platformio.ini', 'ini/**/*.ini') }}
+          restore-keys: platformio-${{ runner.os }}-
+
+      - name: Install PlatformIO
+        run: pip install "platformio==6.2.0"
+
+      - name: Build ${{ matrix.variant }}
+        run: bash scripts/build_all.sh "${{ matrix.variant }}"
+
+      - name: Show binary size
+        run: ls -l dist/
