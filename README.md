@@ -1,5 +1,7 @@
 # Community firmware for Anycubic Vyper — CE 6.3.1
 
+[![Build firmware](https://github.com/YumiShiroma/Anycubic_Vyper_MB_CE_6.3/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/YumiShiroma/Anycubic_Vyper_MB_CE_6.3/actions/workflows/build.yml)
+
 This repository contains the **mainboard** firmware only. The LCD/touch-screen firmware
 stays at **CE 6.2.2** and does not need to be reflashed:
 
@@ -259,6 +261,12 @@ If a stale `toolchain-gccarmnoneeabi` package is present, delete it from
 
 Build and flash a 6.2.2 image from the `6.2-legacy` branch. The LCD firmware does
 not need to be changed when moving between 6.2 and 6.3.
+
+## Reporting bugs
+
+Open an issue with the [bug report form](https://github.com/YumiShiroma/Anycubic_Vyper_MB_CE_6.3/issues/new?template=bug_report.yml).
+Please include your build variant and the output of `M503`. The checklist in
+[docs/TESTING.md](docs/TESTING.md) lists what is worth testing after a flash.
 
 ## License
 
