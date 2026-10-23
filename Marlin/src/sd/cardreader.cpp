@@ -505,6 +505,11 @@ void CardReader::manage_media() {
 
     // Try to mount the media (only later with SD_IGNORE_AT_STARTUP)
     if (TERN1(SD_IGNORE_AT_STARTUP, old_stat != 2)) mount();
+    if (!isMounted()) {             // One retry for slow or marginal cards
+      safe_delay(250);
+      mount();
+      if (isMounted()) ui.set_status(""); // Clear a stale "Media Init Fail"
+    }
     if (!isMounted()) stat = 0;     // Not mounted?
 
     TERN_(RESET_STEPPERS_ON_MEDIA_INSERT, reset_stepper_drivers()); // Workaround for Cheetah bug
