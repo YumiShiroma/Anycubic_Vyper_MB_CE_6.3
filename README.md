@@ -50,6 +50,14 @@ the tool head is retained.
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {  80, 100, 400, 405 }
 ```
 
+| Tool head (direct drive) | Bed mounts (silicone inserts) |
+|:---:|:---:|
+| ![Sailfin direct drive on the Hero Me Gen7 platform](docs/hardware/tool-head.jpg) | ![Silicone inserts under the bed corner screws](docs/hardware/bed-mounts.jpg) |
+| Sailfin extruder on the Hero Me Gen7 platform, twin 5015 part-cooling blowers | Silicone inserts under the corner screws, stock rigid mounts removed |
+
+![Bed mesh measured above the inserts](docs/hardware/bed-mesh.jpg)
+*Bed mesh measured above the inserts. The remaining error on this machine is a mechanical twist of the rear-right / front-left diagonal.*
+
 ### Probing above the bed mount inserts
 
 The four bed mount inserts of this machine sit **35 mm** from the left/right edges
