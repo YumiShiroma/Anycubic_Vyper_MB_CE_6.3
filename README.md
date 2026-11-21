@@ -13,6 +13,15 @@ unchanged, so the CE 6.2.2 LCD works with this firmware.
 
 See [CHANGELOG.md](CHANGELOG.md) for the full history.
 
+## Stock Vyper adaptation
+
+Restored stock Vyper CE settings (CE 6.2 behavior) for a stock machine.
+
+Revert the machine-specific CE 6.3.0 customizations of the repo author's
+printer and restore the stock Anycubic Vyper CE defaults as shipped in
+CE 6.2.2, for a stock Vyper.
+Build variant: VYPER_BUILD_LA_JD_IS (unchanged, already active).
+
 ## What changed in 6.3.1
 
 Maintenance release. The EEPROM layout is unchanged from 6.3.0, so a 6.3.0
@@ -39,74 +48,18 @@ configuration is kept.
   the upgrade.
 * Default active variant remains `VYPER_BUILD_LA_JD_IS`.
 
-## Machine-specific defaults in this fork
+## Current build defaults
 
-This fork is also the firmware running on the author's own Vyper. That machine is
-no longer stock, so the defaults below differ from the generic community firmware.
-The firmware-side ones are one-line changes if your machine is different.
+The default `LA_JD_IS` build targets stock Vyper mechanics and mainboard with an
+all-metal hotend and the original heater and thermistor. It uses 7×7 bilinear
+leveling, a symmetric 10 mm probing margin, dual Z endstops, adaptive fan slowing,
+and the stock filament runout sensor.
 
-### Hardware modifications
+`ALL_METAL_HOTEND` permits a 300 °C target. Keep targets at or below 260 °C unless
+the complete hotend assembly has a documented higher rating. Anycubic specifies
+260 °C for the original Vyper. Comment out `#define ALL_METAL_HOTEND` to enforce
+the 260 °C target cap for a factory hotend. [Anycubic Vyper specifications](https://store.anycubic.com/products/anycubic-vyper)
 
-The printer has been rebuilt around the stock frame; the strain-gauge probe under
-the tool head is retained.
-
-* **Direct drive extruder** instead of the stock bowden setup.
-  * Tool head platform and part cooling duct:
-    [Hero Me Gen7 Platform Release4](https://www.printables.com/model/39322-hero-me-gen7-platform-release4)
-  * Extruder:
-    [Sailfin Extruder Remix](https://www.printables.com/model/282299-sailfin-extruderremix)
-* **Bed mounting**: the stock rigid corner mounts were replaced with four silicone
-  inserts, one under each corner screw. See the probing section below.
-* **X and Y motors and toothed pulleys replaced**, and the extruder is now direct
-  drive, so `DEFAULT_AXIS_STEPS_PER_UNIT` is not stock either:
-
-```cpp
-// this machine
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 100, 100, 400, 689 }
-// stock Vyper for comparison
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {  80, 100, 400, 405 }
-```
-
-| Tool head (direct drive) | Bed mounts (silicone inserts) |
-|:---:|:---:|
-| ![Sailfin direct drive on the Hero Me Gen7 platform](docs/hardware/tool-head.jpg) | ![Silicone inserts under the bed corner screws](docs/hardware/bed-mounts.jpg) |
-| Sailfin extruder on the Hero Me Gen7 platform, twin 5015 part-cooling blowers | Silicone inserts under the corner screws, stock rigid mounts removed |
-
-![Bed mesh measured above the inserts](docs/hardware/bed-mesh.jpg)
-*Bed mesh measured above the inserts. The remaining error on this machine is a mechanical twist of the rear-right / front-left diagonal.*
-
-### Probing above the bed mount inserts
-
-The four bed mount inserts of this machine sit **35 mm** from the left/right edges
-and **50 / 51 mm** from the front/back edges of the 250 x 255 bed. The plate is
-unsupported (cantilevered) outside that rectangle, and probing near the sheet edge
-pressed the overhang down, dragging the corner readings 0.15-0.3 mm below the real
-surface. The probe grid is therefore kept above the inserts:
-
-```cpp
-#define PROBING_MARGIN_LEFT  35
-#define PROBING_MARGIN_RIGHT 35
-#define PROBING_MARGIN_FRONT 50
-#define PROBING_MARGIN_BACK  51
-```
-
-With 4x4 points this gives `X = 35 / 95 / 155 / 215` and `Y = 50 / 101.3 / 152.7 / 204`.
-The strip outside the inserts is no longer measured and is extrapolated by the
-firmware. On this machine the mesh range dropped from 0.31-0.33 mm to 0.199 mm and
-the remaining error is a mechanical twist of the rear-right / front-left diagonal.
-
-If your mounts are in a different place, adjust these four values. For the stock
-symmetric behaviour replace them with a single `#define PROBING_MARGIN 15`.
-
-### Filament runout sensor disabled
-
-```cpp
-//#define FILAMENT_RUNOUT_SENSOR
-```
-
-This machine has no runout sensor fitted, so the feature is compiled out to avoid
-false runout stops. Uncomment the line if your printer has the sensor. `M600` and
-the normal filament-change menu keep working either way.
 
 ## Upgrading from CE 6.2.x
 
@@ -115,10 +68,10 @@ the normal filament-change menu keep working either way.
 2. Flash the new `main_board_*.bin` using the normal Vyper SD-card procedure.
    Keep only one `main_board_*.bin` in the card root; remove the previous one
    before copying a new image.
-3. When coming from CE 6.2.x the EEPROM layout changes (`V89`), so the first
-   boot after flashing resets it. Run `M502` followed by `M500` (or use the LCD
-   reset/initialize action) to store the defaults. Upgrading from 6.3.0 to
-   6.3.1 keeps the existing settings.
+3. Plan to recalibrate after flashing. CE 6.2 uses `V88`, and this build uses
+   `V89`. A changed mesh size or build hash can also reset settings between
+   `V89` builds. Run `M502` followed by `M500` (or use the LCD reset action) to
+   explicitly load and store the new defaults.
 4. Recalibrate at least:
    * Z offset / first layer,
    * bed mesh,
@@ -238,10 +191,9 @@ mainboard firmware from a different UI generation.
 
 ### Settings are gone after the upgrade
 
-6.3.0 changed the EEPROM layout to `V89`, so the first boot after flashing it
-resets the EEPROM. Run `M502` then `M500`, and recalibrate the Z offset, the bed
-mesh and the PID values. Upgrading from 6.3.0 to 6.3.1 does **not** reset the
-EEPROM.
+The firmware resets EEPROM when the version, stored settings size, or build hash
+fails validation. Run `M502` then recalibrate the Z offset, bed mesh, and PID
+values. Use `M500` to save your settings.
 
 ### The build fails while downloading the toolchain
 

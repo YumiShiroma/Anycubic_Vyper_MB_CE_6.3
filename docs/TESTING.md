@@ -47,7 +47,7 @@ every run, but please report which items you covered.
 
 - [ ] Load and unload filament from the UI
 - [ ] Extruder direction and steps are correct
-- [ ] Filament runout behaves as configured (disabled by default on this fork)
+- [ ] Filament runout behaves as configured
 
 ## Reporting
 

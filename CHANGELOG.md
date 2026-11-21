@@ -1,5 +1,33 @@
 # Changelog
 
+## Unreleased
+
+* Restored stock Vyper CE settings (CE 6.2 behavior) for a stock machine.
+
+* Revert the machine-specific CE 6.3.0 customizations of the repo author's
+printer and restore the stock Anycubic Vyper CE defaults as shipped in
+CE 6.2.2, for a stock Vyper.
+
+| Setting | CE 6.3 parent `3638f86` | Stock CE 6.2 |
+| --- | --- | --- |
+| Motion variant | `LA_JD_IS` | `LA_JD_IS` |
+| X direction inversion | `true` | `false` |
+| X/Y/Z/E steps/mm | `100/100/400/689` | `80/100/400/420` |
+| Print / travel acceleration (mm/s²) | `2500/2500` | `3000/5000` |
+| Bilinear mesh | 4×4 | 7×7 |
+| Probe margin | Base 35 mm with left/right 35/35 and front/back 50/51 mm | 10 mm on each side |
+| Z slow speed (mm/min) | `30` | `Z_PROBE_FEEDRATE_FAST / 2` (which is `30`) - put back Marlin def instead of the hardcoded value |
+| Probe tare delay (ms) | `500` | `200` |
+| Probe deploy / between points / between samples (mm) | `10/5/5` | `5/2/2` |
+| Runout sensor | Disabled | Enabled, `PA5` |
+| Adaptive part cooling fan slowdown | Disabled | Enabled, equivalent to the CE 6.2 FSD build |
+| G26 hotend / bed defaults (°C) | `230/75` | `210/60` |
+| PETG preheat hotend / bed (°C) | `215/75` | `240/85` |
+| LCD status timeout (ms) | `60000` | `15000` |
+| DGUS boot timeout (ms) | `3000` | `4000` |
+| All-metal hotend option | Enabled | Enabled |
+
+
 ## 6.3.1 — 2026-10-23
 
 Maintenance release. The EEPROM layout is unchanged from 6.3.0, so settings made
