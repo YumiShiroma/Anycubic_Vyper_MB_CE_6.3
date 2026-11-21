@@ -76,11 +76,11 @@
 //#define VYPER_BUILD_LA_JD_IS_TE // with linear advance and junction deviation enabled and input shaping and with software serial connection to e stepper
 //#define VYPER_BUILD_LA_CJ_IS_TE // with linear advance and classic jerk enabled and input shaping and with software serial connection to e stepper
 
-#define GRID_MAX_POINTS_X 4   // moved here for easier change of the bed leveling mesh size
+#define GRID_MAX_POINTS_X 7   // moved here for easier change of the bed leveling mesh size
 
 #define ALL_METAL_HOTEND      // activate if all metal hotend installed; hotend max temp will be raisded from 260 to 300
 
-// #define SLOWDOWN_FAN_ON_TEMPDROP    // activates ADAPTIVE_FAN_SLOWING in configuration_adv.h
+#define SLOWDOWN_FAN_ON_TEMPDROP    // activates ADAPTIVE_FAN_SLOWING in configuration_adv.h
 
 // Leave undefined to home Z using two Z sensors (stock configuration)
 //#define VYPER_NOZZLE_HOMING // home Z using nozzle sensor at middle of bed
@@ -171,7 +171,7 @@
 
 // Name displayed in the LCD "Ready" message and Info menu
 //#define CUSTOM_MACHINE_NAME "3D Printer"
-#define CUSTOM_MACHINE_NAME "Anycubic Vyper CE-6.3.0YS"
+#define CUSTOM_MACHINE_NAME "Anycubic Vyper CE-6.3.1"
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -1275,7 +1275,7 @@
  * Override with M92
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 100, 100, 400, 689 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 100, 400, 420 }
 
 /**
  * Default Max Feed Rate (linear=mm/s, rotational=°/s)
@@ -1310,9 +1310,9 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          2500    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  2000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   2500    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_TRAVEL_ACCELERATION   5000    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk limits (mm/s)
@@ -1606,23 +1606,7 @@
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-//
-// CE-6.3 test "probe above the inserts":
-// On this machine the four bed mount inserts (M4 screw centers) sit 35 mm
-// from the left and right edges of the 250 x 255 bed, and 50 / 51 mm from
-// the front / back edges. The bed plate is unsupported (cantilevered) outside
-// that rectangle, so probing near the sheet edge pushes the overhang down and
-// drags the readings below the real surface.
-// Probing exactly above the inserts keeps the strain gauge on the rigid part.
-// X grid becomes 35 / 95 / 155 / 215, Y grid 50 / 101.3 / 152.7 / 204.
-// NOTE: the 35 mm (X) and 50 mm (Y) overhangs are no longer measured, so the
-// firmware can only extrapolate them. Expect the outer edge first layer to
-// run with less squish. If the edges go bare, revert to PROBING_MARGIN 15.
-#define PROBING_MARGIN 35
-#define PROBING_MARGIN_LEFT  35
-#define PROBING_MARGIN_RIGHT 35
-#define PROBING_MARGIN_FRONT 50
-#define PROBING_MARGIN_BACK  51
+#define PROBING_MARGIN 10
 
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_FEEDRATE (80*60)
@@ -1631,9 +1615,7 @@
 #define Z_PROBE_FEEDRATE_FAST (1*60)
 
 // Feedrate (mm/min) for the "accurate" probe of each point
-// CE-6.3 test: slower final approach gives the strain gauge time to trigger
-// before the nozzle deflects the plate.
-#define Z_PROBE_FEEDRATE_SLOW (0.5*60)
+#define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2) // (mm/min)
 
 /**
  * Probe Activation Switch
@@ -1659,7 +1641,7 @@
 #endif
 #if ENABLED(PROBE_TARE)
   #define PROBE_TARE_TIME  300    // (ms) Time to hold tare pin
-  #define PROBE_TARE_DELAY 500    // (ms) Delay after tare before
+  #define PROBE_TARE_DELAY 200    // (ms) Delay after tare before
   #define PROBE_TARE_STATE LOW   // State to write pin for tare
   //#define PROBE_TARE_PIN PA5    // Override default pin
   #if ENABLED(PROBE_ACTIVATION_SWITCH)
@@ -1702,10 +1684,9 @@
  * Example: 'M851 Z-5' with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: 'M851 Z+1' with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-// CE-6.3 test: stock-like clearances give the plate and sensor time to settle.
-#define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
-#define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
-#define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
+#define Z_CLEARANCE_DEPLOY_PROBE    5 // Z Clearance for Deploy/Stow
+#define Z_CLEARANCE_BETWEEN_PROBES  2 // Z Clearance between probe points
+#define Z_CLEARANCE_MULTI_PROBE     2 // Z Clearance between multiple probes
 //#define Z_AFTER_PROBING           5 // Z position after probing is done
 
 #if ENABLED(VYPER_NOZZLE_HOMING)
@@ -1790,7 +1771,7 @@
 // @section motion
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR true
+#define INVERT_X_DIR false
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR true
 //#define INVERT_I_DIR false
@@ -1923,9 +1904,7 @@
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  */
-// CE-6.3: this machine has no filament runout sensor fitted (the PA5 connector
-// is empty), so keep the feature compiled out. M600 / filament change still work.
-//#define FILAMENT_RUNOUT_SENSOR
+#define FILAMENT_RUNOUT_SENSOR
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
   #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
@@ -2101,8 +2080,8 @@
   #if ENABLED(G26_MESH_VALIDATION)
     #define MESH_TEST_NOZZLE_SIZE    0.4  // (mm) Diameter of primary nozzle.
     #define MESH_TEST_LAYER_HEIGHT   0.2  // (mm) Default layer height for G26.
-    #define MESH_TEST_HOTEND_TEMP  230    // (°C) Default nozzle temperature for G26.
-    #define MESH_TEST_BED_TEMP      75    // (°C) Default bed temperature for G26.
+    #define MESH_TEST_HOTEND_TEMP  210    // (°C) Default nozzle temperature for G26.
+    #define MESH_TEST_BED_TEMP      60    // (°C) Default bed temperature for G26.
     #define G26_XY_FEEDRATE         35    // (mm/s) Feedrate for G26 XY moves.
     #define G26_XY_FEEDRATE_TRAVEL 100    // (mm/s) Feedrate for G26 XY travel moves.
     #define G26_RETRACT_MULTIPLIER   3.0  // G26 Q (retraction) used by default between mesh test elements.
@@ -2383,8 +2362,8 @@
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "PETG"
-#define PREHEAT_2_TEMP_HOTEND 215
-#define PREHEAT_2_TEMP_BED     75
+#define PREHEAT_2_TEMP_HOTEND 240
+#define PREHEAT_2_TEMP_BED     85
 //#define PREHEAT_2_TEMP_CHAMBER 35
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
